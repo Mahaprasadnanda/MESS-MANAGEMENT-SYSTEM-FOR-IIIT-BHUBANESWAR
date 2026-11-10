@@ -8,6 +8,9 @@
   "observability": {
     "enabled": true
   },
+  "vars": {
+    "CLIENT_URL": "https://mess-management-system-for-iiit-bhubaneswar.pages.dev"
+  },
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
