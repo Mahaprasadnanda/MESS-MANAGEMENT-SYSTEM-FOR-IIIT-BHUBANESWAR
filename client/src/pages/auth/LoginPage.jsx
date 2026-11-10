@@ -81,7 +81,7 @@ export function LoginPage() {
                 if (errors.email) validateField('email', e.target.value);
               }}
               onBlur={(e) => validateField('email', e.target.value)}
-              placeholder="B123026@iiit-bh.ac.in"
+              placeholder="B423035@iiit-bh.ac.in"
               className={`w-full rounded-xl border pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
                 errors.email
                   ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
