@@ -1,9 +1,12 @@
-const path = require('path');
-const dotenv = require('dotenv');
-
-// Load server/.env first if present, then fall back to root .env
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+// Cloudflare Worker secrets are copied into process.env by src/worker.mjs.
+// Avoid dotenv's filesystem reads in the Workers runtime; retain .env loading
+// for ordinary local Node.js development.
+if (!globalThis.__iiitMessWorkerEnv) {
+  const path = require('path');
+  const dotenv = require('dotenv');
+  dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+  dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+}
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const JWT_SECRET = process.env.JWT_SECRET;
