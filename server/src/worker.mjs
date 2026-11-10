@@ -1,16 +1,9 @@
 import { env as workerEnv } from 'cloudflare:workers';
 import { httpServerHandler } from 'cloudflare:node';
 
-// Validate non-I/O secrets at startup. Hyperdrive's connectionString is
-// intentionally read later, inside the Express request middleware.
-if (!workerEnv.JWT_SECRET || workerEnv.JWT_SECRET.length < 32) {
-  throw new Error('Set JWT_SECRET as a Cloudflare Worker secret (at least 32 characters).');
-}
-if (!workerEnv.CLIENT_URL) {
-  throw new Error('Set CLIENT_URL to the deployed Cloudflare Pages frontend URL.');
-}
-
-// Expose Worker bindings before loading the CommonJS application.
+// Worker bindings are exposed to the existing CommonJS configuration modules.
+// Do not validate dashboard secrets at global scope: deployment builds upload
+// the Worker before runtime bindings are attached to the running version.
 globalThis.__iiitMessWorkerEnv = workerEnv;
 
 for (const key of [
