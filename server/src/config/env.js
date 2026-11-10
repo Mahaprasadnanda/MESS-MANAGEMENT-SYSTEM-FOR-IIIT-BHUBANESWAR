@@ -1,6 +1,6 @@
-// Cloudflare Worker secrets are copied into process.env by src/worker.mjs.
-// Avoid dotenv's filesystem reads in the Workers runtime; retain .env loading
-// for ordinary local Node.js development.
+// Cloudflare Worker bindings are exposed by src/worker.mjs before the app
+// is dynamically imported. Avoid dotenv filesystem reads in Workers; retain
+// .env loading for ordinary local Node.js development.
 if (!globalThis.__iiitMessWorkerEnv) {
   const path = require('path');
   const dotenv = require('dotenv');
@@ -8,7 +8,9 @@ if (!globalThis.__iiitMessWorkerEnv) {
   dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 }
 
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const NODE_ENV = globalThis.__iiitMessWorkerEnv
+  ? 'production'
+  : process.env.NODE_ENV || 'development';
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET || JWT_SECRET.length < 16) {
