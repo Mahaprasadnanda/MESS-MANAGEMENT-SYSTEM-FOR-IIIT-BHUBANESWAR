@@ -53,8 +53,10 @@ function validateWorkerRuntime(req, res, next) {
   if (!bindings?.JWT_SECRET || bindings.JWT_SECRET.length < 32) {
     return res.status(503).json({ error: 'Worker secret JWT_SECRET is not configured (minimum 32 characters).' });
   }
-  if (!bindings?.CLIENT_URL) {
-    return res.status(503).json({ error: 'Worker variable CLIENT_URL is not configured.' });
+  // The frontend is deployed separately. Allow the health endpoint to work
+  // before its URL is known; require CLIENT_URL for all application routes.
+  if (!bindings?.CLIENT_URL && req.path !== '/health') {
+    return res.status(503).json({ error: 'Worker variable CLIENT_URL is not configured yet. Set it after deploying the frontend.' });
   }
   if (!bindings?.HYPERDRIVE?.connectionString) {
     return res.status(503).json({ error: 'Worker Hyperdrive binding is not configured.' });
