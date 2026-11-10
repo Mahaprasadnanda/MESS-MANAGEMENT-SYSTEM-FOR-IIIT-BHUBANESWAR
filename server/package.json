@@ -12,7 +12,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "node prisma/seed.js",
-    "test:rules": "node tests/businessRules.test.js"
+    "test:rules": "node tests/businessRules.test.js",
+    "postinstall": "node scripts/patch-iconv-lite.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^6.16.0",
