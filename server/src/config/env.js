@@ -1,22 +1,21 @@
 // Cloudflare Worker bindings are exposed by src/worker.mjs before the app
 // is dynamically imported. Avoid dotenv filesystem reads in Workers; retain
 // .env loading for ordinary local Node.js development.
-if (!globalThis.__iiitMessWorkerEnv) {
+const workerRuntime = Boolean(globalThis.__iiitMessWorkerEnv);
+if (!workerRuntime) {
   const path = require('path');
   const dotenv = require('dotenv');
   dotenv.config({ path: path.resolve(__dirname, '../../.env') });
   dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 }
 
-const NODE_ENV = globalThis.__iiitMessWorkerEnv
-  ? 'production'
-  : process.env.NODE_ENV || 'development';
+const NODE_ENV = workerRuntime ? 'production' : process.env.NODE_ENV || 'development';
 const JWT_SECRET = process.env.JWT_SECRET;
 
-if (!JWT_SECRET || JWT_SECRET.length < 16) {
-  if (NODE_ENV === 'production') {
-    throw new Error('FATAL: JWT_SECRET must be configured with at least 16 characters in production.');
-  }
+// Validate local production configuration immediately. Worker secrets are
+// validated in an Express request middleware, not during deployment startup.
+if (!workerRuntime && (!JWT_SECRET || JWT_SECRET.length < 16) && NODE_ENV === 'production') {
+  throw new Error('FATAL: JWT_SECRET must be configured with at least 16 characters in production.');
 }
 
 const isPlaceholder = (val) =>
