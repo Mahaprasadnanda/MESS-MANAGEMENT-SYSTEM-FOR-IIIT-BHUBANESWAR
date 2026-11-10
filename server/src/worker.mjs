@@ -1,8 +1,5 @@
 import { env as workerEnv } from 'cloudflare:workers';
 import { httpServerHandler } from 'cloudflare:node';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
 
 if (!workerEnv.HYPERDRIVE?.connectionString) {
   throw new Error('The HYPERDRIVE binding is missing. Bind the iiit-mess-db Hyperdrive configuration.');
@@ -14,10 +11,9 @@ if (!workerEnv.CLIENT_URL) {
   throw new Error('Set CLIENT_URL to the deployed Cloudflare Pages frontend URL.');
 }
 
-// Make Worker bindings available to the existing CommonJS configuration modules.
-// Secrets remain in Cloudflare and are never written to the repository.
+// Expose Worker bindings before loading the CommonJS application. The dynamic
+// import ensures the existing Express configuration reads these values first.
 globalThis.__iiitMessWorkerEnv = workerEnv;
-process.env.NODE_ENV = 'production';
 
 for (const key of [
   'JWT_SECRET',
@@ -35,7 +31,8 @@ for (const key of [
   }
 }
 
-const app = require('./app.js');
+const appModule = await import('./app.js');
+const app = appModule.default ?? appModule;
 app.listen(8787);
 
 // Cloudflare's Node HTTP bridge lets the existing Express application run
